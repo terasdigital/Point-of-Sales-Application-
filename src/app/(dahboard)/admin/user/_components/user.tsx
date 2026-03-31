@@ -1,11 +1,17 @@
 "use client";
 
+import DataTable from "@/components/common/data-table";
+import DropdownAction from "@/components/common/dropdown-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/sonner";
+import { HEADER_TABLE_USER } from "@/constants/user-constant";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { Pencil, Trash } from "lucide-react";
+import { Span } from "next/dist/trace";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 export default function UserManagement() {
@@ -25,6 +31,40 @@ export default function UserManagement() {
       return data;
     },
   });
+  const filteredData = useMemo(() => {
+    return (users || []).map((user, index) => {
+      return [
+        index + 1,
+        user.id,
+        user.name,
+        user.role,
+        <DropdownAction
+          menu={[
+            {
+              label: (
+                <span className="flex items-center gap-2">
+                  <Pencil />
+                  Edit
+                </span>
+              ),
+              action: () => {},
+            },
+            {
+              label: (
+                <span className="flex items-center gap-2">
+                  <Trash className="text-red-400" />
+                  Delete
+                </span>
+              ),
+              variant: "destructive",
+              action: () => {},
+            },
+          ]}
+        />,
+      ];
+    });
+  }, [users]);
+
   return (
     <div className="w-full">
       <div className="flex flex-col lg:flex-row mb-4 gap-2 justify-between w-full">
@@ -38,13 +78,11 @@ export default function UserManagement() {
           </Dialog>
         </div>
       </div>
-
-      {users?.map((user) => (
-        <div key={user.id}>
-          <h2>{user.name}</h2>
-          <h2>{user.role}</h2>
-        </div>
-      ))}
+      <DataTable
+        header={HEADER_TABLE_USER}
+        data={filteredData}
+        isLoading={isLoading}
+      ></DataTable>
     </div>
   );
 }
