@@ -32,10 +32,19 @@ export const INITIAL_CREATE_USER_FORM = {
 
 export const INITIAL_STATE_CREATE_USER = {
   status: "idle",
-
   errors: {
     email: [],
     password: [],
+    name: [],
+    role: [],
+    avatar_url: [],
+    _form: [],
+  },
+};
+
+export const INITIAL_STATE_UPDATE_USER = {
+  status: "idle",
+  errors: {
     name: [],
     role: [],
     avatar_url: [],
