@@ -1,5 +1,6 @@
 "use server";
 
+import { deleteFile } from "@/actions/storage-action";
 import { createClient } from "@/lib/supabase/server";
 import { TableFormState } from "@/types/table";
 import { tableSchema } from "@/validations/table-validation";
@@ -80,6 +81,32 @@ export async function updateTable(
       capacity: validatedFields.data.capacity,
       status: validatedFields.data.status,
     })
+    .eq("id", formData.get("id"));
+
+  if (error) {
+    return {
+      status: "error",
+      errors: {
+        ...prevState.errors,
+        _form: [error.message],
+      },
+    };
+  }
+
+  return {
+    status: "success",
+  };
+}
+
+export async function deleteTable(
+  prevState: TableFormState,
+  formData: FormData,
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("tables")
+    .delete()
     .eq("id", formData.get("id"));
 
   if (error) {
