@@ -1,6 +1,5 @@
 "use server";
 
-import { deleteFile } from "@/actions/storage-action";
 import { createClient } from "@/lib/supabase/server";
 import { TableFormState } from "@/types/table";
 import { tableSchema } from "@/validations/table-validation";

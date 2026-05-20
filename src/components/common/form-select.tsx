@@ -29,7 +29,7 @@ export default function FormSelect<T extends FieldValues>({
   name: Path<T>;
   label: string;
   placeholder?: string;
-  selectItem: { value: string; label: string; disable?: boolean }[];
+  selectItem: { value: string; label: string; disabled?: boolean }[];
 }) {
   return (
     <FormField
@@ -54,7 +54,7 @@ export default function FormSelect<T extends FieldValues>({
                     <SelectItem
                       key={item.label}
                       value={item.value}
-                      disabled={item.disable}
+                      disabled={item.disabled}
                       className="capitalize"
                     >
                       {item.label}

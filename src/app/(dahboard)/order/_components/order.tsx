@@ -18,6 +18,7 @@ import { HEADER_TABLE_MENU } from "@/constants/menu-constant";
 import { Table } from "@/validations/table-validation";
 import { HEADER_TABLE_TABLE } from "@/constants/table-constant";
 import { HEADER_TABLE_ORDER } from "@/constants/order-constant";
+import DialogCreateOrder from "./dialog-create-order";
 
 export default function OrderManagement() {
   const supabase = createClient();
@@ -29,6 +30,7 @@ export default function OrderManagement() {
     handleCurrentLimit,
     handleChangeSearch,
   } = useDataTable();
+
   const {
     data: orders,
     refetch,
@@ -60,6 +62,19 @@ export default function OrderManagement() {
           description: result.error.message,
         });
       return result;
+    },
+  });
+
+  const { data: tables, refetch: refetchTable } = useQuery({
+    queryKey: ["tables"],
+    queryFn: async () => {
+      const result = await supabase
+        .from("tables")
+        .select("*")
+        .order("created_at")
+        .order("status");
+
+      return result.data;
     },
   });
 
@@ -113,7 +128,7 @@ export default function OrderManagement() {
             <DialogTrigger asChild>
               <Button variant="outline">Create</Button>
             </DialogTrigger>
-            {/* <DialogCreateTable refetch={refetch} /> */}
+            <DialogCreateOrder tables={tables} refetch={refetch} />
           </Dialog>
         </div>
       </div>
