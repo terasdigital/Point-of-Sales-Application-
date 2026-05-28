@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 import { toast } from "sonner";
+import Summary from "./summary";
 
 export default function DetailOrder({ id }: { id: string }) {
   const supabase = createClient();
@@ -118,6 +119,11 @@ export default function DetailOrder({ id }: { id: string }) {
             onChangePage={handleChangePage}
             onChangeLimit={handleCurrentLimit}
           />
+        </div>
+        <div className="lg:w-1/3">
+          {order && (
+            <Summary order={order} orderMenu={orderMenu?.data} id={id} />
+          )}
         </div>
       </div>
     </div>
