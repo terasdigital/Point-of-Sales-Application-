@@ -11,7 +11,10 @@ export default function Summary({
   orderMenu,
   id,
 }: {
-  order: { customer_name: string; tables: { name: string }[]; status: string };
+  order:
+    | { customer_name: string; tables: { name: string }[]; status: string }
+    | undefined
+    | null;
   orderMenu:
     | { menus: Menu; quantity: number; status: string }[]
     | null
