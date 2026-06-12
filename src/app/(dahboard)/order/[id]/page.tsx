@@ -6,6 +6,12 @@ export const metadata = {
   title: "WPU | Detail Order",
 };
 
+declare global {
+  interface Window {
+    snap: any;
+  }
+}
+
 export default async function DetailOrderPage({
   params,
 }: {
