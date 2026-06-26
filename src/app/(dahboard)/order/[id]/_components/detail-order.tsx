@@ -22,6 +22,7 @@ import {
 import { EllipsisVertical } from "lucide-react";
 import { updateStatusOrderItem } from "../../actions";
 import { INITIAL_STATE_ACTION } from "@/constants/general-constant";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function DetailOrder({ id }: { id: string }) {
   const supabase = createClient();
@@ -90,6 +91,8 @@ export default function DetailOrder({ id }: { id: string }) {
       updateStatusOrderAction(formData);
     });
   };
+
+  const profile = useAuthStore((state) => state.profile);
 
   useEffect(() => {
     if (updateStatusOrderState?.status === "error") {
@@ -180,9 +183,11 @@ export default function DetailOrder({ id }: { id: string }) {
     <div className="w-full space-y-4">
       <div className="flex items-center gap-4 justify-between w-full">
         <h1 className="text-2xl font-bold">Detail Order</h1>
-        <Link href={`/order/${id}/add`}>
-          <Button>Add Order Item</Button>
-        </Link>
+        {profile.role !== "kitchen" && (
+          <Link href={`/order/${id}/add`}>
+            <Button>Add Order Item</Button>
+          </Link>
+        )}
       </div>
       <div className="flex flex-col lg:flex-row gap-4 w-full">
         <div className="lg:w-2/3">
