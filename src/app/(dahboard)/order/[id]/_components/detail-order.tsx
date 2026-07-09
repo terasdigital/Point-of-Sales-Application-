@@ -125,8 +125,9 @@ export default function DetailOrder({ id }: { id: string }) {
     }
     if (updateStatusOrderState?.status === "success") {
       toast.success("Update Status Order Success");
+      refetchOrderMenu();
     }
-  });
+  }, [updateStatusOrderState]);
 
   const filteredData = useMemo(() => {
     return (orderMenu?.data || []).map((item, index) => {
@@ -163,7 +164,7 @@ export default function DetailOrder({ id }: { id: string }) {
             <Button
               variant="ghost"
               className={cn(
-                "data-[state=open]: bg-muted text-muted-foreground flex size-8",
+                "data-[state=open]:bg-muted text-muted-foreground flex size-8",
                 { hidden: item.status === "served" },
               )}
               size="icon"
