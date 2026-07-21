@@ -96,6 +96,35 @@ export default function OrderManagement() {
     },
   });
 
+  const { data: activeOrder, refetch: refetchActiveOrder } = useQuery({
+    queryKey: ["active-orders"],
+    queryFn: async () => {
+      const query = supabase
+        .from("orders")
+        .select(
+          `
+          id, order_id, customer_name, status, payment_token, tables (name, id)
+          `,
+        )
+        .in("status", ["process", "reserved"])
+        .order("created_at");
+
+      if (currentSearch) {
+        query.or(
+          `order_id.ilike.%${currentSearch}%,customer_name.ilike.%${currentSearch}%, status.ilike.%${currentSearch}%`,
+        );
+      }
+
+      const result = await query;
+
+      if (result.error)
+        toast.error("Get Order Data Failed", {
+          description: result.error.message,
+        });
+      return result;
+    },
+  });
+
   useEffect(() => {
     const channel = supabase
       .channel("change-order")
@@ -109,6 +138,7 @@ export default function OrderManagement() {
         () => {
           refetchOrders();
           refetchTables();
+          refetchActiveOrder();
         },
       )
       .subscribe();
@@ -236,6 +266,14 @@ export default function OrderManagement() {
 
   const [openCreateOrder, setOpenCreateOrder] = useState(false);
 
+  // const activeOrder = useMemo(() => {
+  //   return (
+  //     orders?.data?.filter(
+  //       (order) => order.status === "process" || order.status === "reserved",
+  //     ) || []
+  //   );
+  // }, [orders]);
+
   return (
     <div className="w-full">
       <Tabs defaultValue="list" className="w-full mb-4">
@@ -315,7 +353,10 @@ export default function OrderManagement() {
         </TabsContent>
 
         <TabsContent value="map">
-          <TableMap tables={tables || []} />
+          <TableMap
+            tables={tables || []}
+            activeOrder={activeOrder?.data ?? []}
+          />
         </TabsContent>
       </Tabs>
     </div>

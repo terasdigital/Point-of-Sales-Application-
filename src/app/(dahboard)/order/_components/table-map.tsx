@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
   HoverCard,
   HoverCardContent,
@@ -7,13 +9,25 @@ import { cn } from "@/lib/utils";
 import { TableMapType } from "@/validations/table-validation";
 import { Background, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMemo } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import DialogCreateOrderDineIn from "./dialog-create-order-dine-in";
 
 export function TableNode({
   data,
 }: {
-  data: { label: string; capacity: number; status: string };
+  data: {
+    id: string;
+    label: string;
+    capacity: number;
+    status: string;
+    order?: {
+      order_id: string;
+      customer_name: string;
+    };
+  };
 }) {
+  const [openCreateOrder, setOpenCreateOrder] = useState(false);
   return (
     <HoverCard>
       <HoverCardTrigger>
@@ -48,13 +62,52 @@ export function TableNode({
             {" "}
             Status: {data.status}
           </p>
+          {data.order ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-muted-foreground">
+                Order ID: {data.order.order_id}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Customer Name: {data.order.customer_name}
+              </p>
+              <Link
+                className="mt-2 w-full"
+                href={`/order/${data.order.order_id}`}
+              >
+                <Button>View Order Details</Button>
+              </Link>
+            </div>
+          ) : (
+            <Dialog open={openCreateOrder} onOpenChange={setOpenCreateOrder}>
+              <DialogTrigger asChild>
+                <Button>Create Order</Button>
+              </DialogTrigger>
+              <DialogCreateOrderDineIn
+                closeDialog={() => setOpenCreateOrder(false)}
+                selectedTable={{
+                  id: data.id,
+                  name: data.label,
+                }}
+              />
+            </Dialog>
+          )}
         </div>
       </HoverCardContent>
     </HoverCard>
   );
 }
 
-export default function TableMap({ tables }: { tables: TableMapType[] }) {
+export default function TableMap({
+  tables,
+  activeOrder,
+}: {
+  tables: TableMapType[];
+  activeOrder: {
+    order_id: string;
+    customer_name: string;
+    tables: unknown;
+  }[];
+}) {
   const nodeTypes = {
     tableNode: TableNode,
   };
@@ -63,9 +116,13 @@ export default function TableMap({ tables }: { tables: TableMapType[] }) {
       id: table.id,
       position: { x: table.position_x, y: table.position_y },
       data: {
+        id: table.id,
         label: table.name,
         capacity: table.capacity,
         status: table.status,
+        order: activeOrder.find((order) => {
+          return (order.tables as unknown as { id: string })?.id === table.id;
+        }),
       },
       type: "tableNode",
     }));
