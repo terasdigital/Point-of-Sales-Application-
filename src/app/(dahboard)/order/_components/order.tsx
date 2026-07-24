@@ -121,7 +121,7 @@ export default function OrderManagement() {
         toast.error("Get Order Data Failed", {
           description: result.error.message,
         });
-      return result;
+      return result.data;
     },
   });
 
@@ -186,7 +186,6 @@ export default function OrderManagement() {
 
     if (reservedState.status === "success") {
       toast.success("Update Reservation Success");
-      refetchOrders();
       refetchTables();
     }
   }, [reservedState]);
@@ -355,7 +354,14 @@ export default function OrderManagement() {
         <TabsContent value="map">
           <TableMap
             tables={tables || []}
-            activeOrder={activeOrder?.data ?? []}
+            activeOrder={activeOrder || []}
+            handleReservation={(
+              id: string,
+              table_id: string,
+              status: string,
+            ) => {
+              handleReservation({ id, table_id, status });
+            }}
           />
         </TabsContent>
       </Tabs>
