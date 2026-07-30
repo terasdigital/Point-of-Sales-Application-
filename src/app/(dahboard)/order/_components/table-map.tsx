@@ -10,8 +10,9 @@ import { TableMapType } from "@/validations/table-validation";
 import { Background, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import DialogCreateOrderDineIn from "./dialog-create-order-dine-in";
+import { useAuthStore } from "@/stores/auth-store";
 
 export function TableNode({
   data,
@@ -30,12 +31,13 @@ export function TableNode({
   };
 }) {
   const [openCreateOrder, setOpenCreateOrder] = useState(false);
+  const profile = useAuthStore((state) => state.profile);
   return (
     <HoverCard>
       <HoverCardTrigger>
         <div
           className={cn(
-            "bg-muted rounded-lg flex items-center justify-center outline-2 outline-offset-4 outline-dashed",
+            "bg-muted rounded-lg flex items-center justify-center outline-2 outline-offset-4 outline-dashed cursor-pointer",
             {
               "w-20 h-20": data.capacity === 2,
               "w-32 h-20": data.capacity === 4,
@@ -80,46 +82,57 @@ export function TableNode({
                   <Button>View Order Details</Button>
                 </Link>
               ) : (
-                <div className="w-full flex gap-4">
-                  <Button
-                    variant="destructive"
-                    onClick={() =>
-                      data.handleReservation(
-                        `${data?.order?.id}`,
-                        data.id,
-                        "canceled",
-                      )
-                    }
-                  >
-                    Canceled
-                  </Button>
-                  <Button
-                    onClick={() =>
-                      data.handleReservation(
-                        `${data?.order?.id}`,
-                        data.id,
-                        "process",
-                      )
-                    }
-                  >
-                    Process
-                  </Button>
-                </div>
+                <Fragment>
+                  {profile.role !== "kitchen" && (
+                    <div className="w-full flex gap-4">
+                      <Button
+                        variant="destructive"
+                        onClick={() =>
+                          data.handleReservation(
+                            `${data?.order?.id}`,
+                            data.id,
+                            "canceled",
+                          )
+                        }
+                      >
+                        Canceled
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          data.handleReservation(
+                            `${data?.order?.id}`,
+                            data.id,
+                            "process",
+                          )
+                        }
+                      >
+                        Process
+                      </Button>
+                    </div>
+                  )}
+                </Fragment>
               )}
             </div>
           ) : (
-            <Dialog open={openCreateOrder} onOpenChange={setOpenCreateOrder}>
-              <DialogTrigger asChild>
-                <Button>Create Order</Button>
-              </DialogTrigger>
-              <DialogCreateOrderDineIn
-                closeDialog={() => setOpenCreateOrder(false)}
-                selectedTable={{
-                  id: data.id,
-                  name: data.label,
-                }}
-              />
-            </Dialog>
+            <Fragment>
+              {profile.role !== "kitchen" && (
+                <Dialog
+                  open={openCreateOrder}
+                  onOpenChange={setOpenCreateOrder}
+                >
+                  <DialogTrigger asChild>
+                    <Button>Create Order</Button>
+                  </DialogTrigger>
+                  <DialogCreateOrderDineIn
+                    closeDialog={() => setOpenCreateOrder(false)}
+                    selectedTable={{
+                      id: data.id,
+                      name: data.label,
+                    }}
+                  />
+                </Dialog>
+              )}
+            </Fragment>
           )}
         </div>
       </HoverCardContent>
@@ -159,7 +172,7 @@ export default function TableMap({
       },
       type: "tableNode",
     }));
-  }, [tables]);
+  }, [tables, activeOrder]);
   return (
     <div className="w-full h-[80vh] border rounded-lg">
       <ReactFlow
